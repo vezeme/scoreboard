@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scoreboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, system-ui, sans-serif;
+      background: #000;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: #000;
+    }
+    .team-name-input {
+      flex: 1;
+      text-align: center;
+      font-size: 5vw;
+      padding: 8px 4px;
+      border-radius: 8px;
+      border: 2px solid #444;
+      background: #111;
+      color: #fff;
+    }
+    .scores {
+      flex: 1;
+      display: flex;
+    }
+    .team {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px solid #222;
+    }
+    .team:last-child {
+      border-right: none;
+    }
+    .score {
+      font-size: 30vw;
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+    .buttons {
+      display: flex;
+      gap: 20px;
+    }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 8vw;
+      cursor: pointer;
+    }
+    .reset {
+      margin: 10px auto 20px auto;
+      font-size: 5vw;
+      padding: 8px 20px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <input id="homeName" class="team-name-input" placeholder="HOME" />
+    <input id="awayName" class="team-name-input" placeholder="AWAY" />
+  </div>
+
+  <div class="scores">
+    <div class="team">
+      <div class="score" id="homeScore">0</div>
+      <div class="buttons">
+        <button onclick="changeScore('home', 1)">+1</button>
+        <button onclick="changeScore('home', -1)">−1</button>
+      </div>
+    </div>
+    <div class="team">
+      <div class="score" id="awayScore">0</div>
+      <div class="buttons">
+        <button onclick="changeScore('away', 1)">+1</button>
+        <button onclick="changeScore('away', -1)">−1</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="reset" onclick="resetScores()">RESET</button>
+
+  <script>
+    function loadState() {
+      const homeScore = localStorage.getItem('homeScore');
+      const awayScore = localStorage.getItem('awayScore');
+      const homeName = localStorage.getItem('homeName');
+      const awayName = localStorage.getItem('awayName');
+
+      if (homeScore !== null) document.getElementById('homeScore').textContent = homeScore;
+      if (awayScore !== null) document.getElementById('awayScore').textContent = awayScore;
+      if (homeName !== null) document.getElementById('homeName').value = homeName;
+      if (awayName !== null) document.getElementById('awayName').value = awayName;
+    }
+
+    function saveName(id) {
+      const value = document.getElementById(id).value;
+      localStorage.setItem(id, value);
+    }
+
+    function changeScore(team, delta) {
+      const id = team + 'Score';
+      let score = parseInt(document.getElementById(id).textContent, 10);
+      score += delta;
+      if (score < 0) score = 0;
+      document.getElementById(id).textContent = score;
+      localStorage.setItem(id, score);
+    }
+
+    function resetScores() {
+      document.getElementById('homeScore').textContent = '0';
+      document.getElementById('awayScore').textContent = '0';
+      localStorage.setItem('homeScore', '0');
+      localStorage.setItem('awayScore', '0');
+    }
+
+    window.addEventListener('load', function () {
+      loadState();
+      document.getElementById('homeName').addEventListener('input', () => saveName('homeName'));
+      document.getElementById('awayName').addEventListener('input', () => saveName('awayName'));
+    });
+  </script>
+</body>
+</html>
