@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <title>Scoreboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <!-- kad iOS būtų labiau kaip app'as iš Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Scoreboard">
+
   <style>
     body {
       margin: 0;
@@ -52,7 +58,7 @@
       border-right: none;
     }
 
-    /* bazinis dydis – bus perrašomas JS, bet paliekam default 52vw */
+    /* baziniai skaičių nustatymai – dydį perrašys JS */
     .score {
       font-size: 52vw;
       line-height: 1;
@@ -133,6 +139,7 @@
   </div>
 
   <script>
+    // --------- SCORE / STATE ----------
     function loadState() {
       const homeScore = localStorage.getItem('homeScore');
       const awayScore = localStorage.getItem('awayScore');
@@ -164,18 +171,18 @@
       updateFontSizes();
     }
 
-    // Automatinis šrifto dydžio parinkimas pagal skaitmenų skaičių
+    // --------- AUTO FONT SIZE ----------
     function adjustScoreElement(el) {
       const text = el.textContent.trim();
       const len = text.length;
       let size;
 
       if (len <= 1) {
-        size = '52vw';      // 0–9
+        size = '52vw';        // 0–9
       } else if (len === 2) {
-        size = '32vw';      // 10–99
+        size = '36vw';        // 10–99 (padidinta nuo 32vw)
       } else {
-        size = '24vw';      // 100+ (šiaip turbūt nepasieksi, bet šiaip sau)
+        size = '26vw';        // 100+
       }
 
       el.style.fontSize = size;
@@ -186,11 +193,52 @@
       adjustScoreElement(document.getElementById('awayScore'));
     }
 
+    // --------- FULLSCREEN + WAKE LOCK (Android/Chrome) ----------
+    let wakeLock = null;
+    let fullscreenInitialized = false;
+
+    async function enableFullscreenAndWakeLock() {
+      if (fullscreenInitialized) return;
+      fullscreenInitialized = true;
+
+      const el = document.documentElement;
+
+      try {
+        if (el.requestFullscreen) {
+          await el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) { // iOS Safari
+          el.webkitRequestFullscreen();
+        }
+      } catch (e) {
+        console.log('Fullscreen error:', e);
+      }
+
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            console.log('Wake lock released');
+          });
+        } catch (err) {
+          console.log('Wake lock error:', err);
+        }
+      }
+    }
+
+    function initInteractionOnce() {
+      enableFullscreenAndWakeLock();
+      window.removeEventListener('click', initInteractionOnce);
+      window.removeEventListener('touchstart', initInteractionOnce);
+    }
+
+    window.addEventListener('click', initInteractionOnce);
+    window.addEventListener('touchstart', initInteractionOnce);
+
+    // --------- INIT ---------
     window.addEventListener('load', function () {
       loadState();
       updateFontSizes();
 
-      // išsaugom komandų pavadinimus
       document.getElementById('homeName').addEventListener('input', () =>
         localStorage.setItem('homeName', document.getElementById('homeName').value)
       );
@@ -199,7 +247,6 @@
       );
     });
 
-    // jei pasuksi ekraną / keisis plotis – perpiešiam dydžius
     window.addEventListener('resize', updateFontSizes);
   </script>
 </body>
