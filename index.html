@@ -19,25 +19,25 @@
     .header {
       display: flex;
       gap: 8px;
-      padding: 4px 10px;
+      padding: 2px 10px;
       background: #000;
     }
 
     .team-name-input {
       flex: 1;
       text-align: center;
-      font-size: 2.8vw;
-      padding: 3px 4px;
+      font-size: 2.3vw;     /* buvo 2.8vw → sumažinta */
+      padding: 3px 3px;
       border-radius: 8px;
       border: 1px solid #444;
       background: #111;
       color: #fff;
     }
 
-    /* du gigantiški skaičiai */
     .scores {
       flex: 1;
       display: flex;
+      align-items: center;
     }
 
     .team {
@@ -52,40 +52,43 @@
       border-right: none;
     }
 
+    /* DIDESNI SKAIČIAI MAX */
     .score {
-      font-size: 45vw;   /* dar didesni skaičiai */
+      font-size: 52vw;      /* buvo 45vw → dabar beveik max */
       line-height: 1;
-      margin-bottom: 8px;
+      margin: 0;
+      padding: 0;
+      transform: translateY(-1.5vh);  /* truputį pakelta į viršų */
     }
 
-    /* bendras blokas su mygtukais apačioje */
+    /* apatiniai mygtukai */
     .controls {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 12px 14px;
+      padding: 2px 12px 10px;
       gap: 10px;
     }
 
     .team-buttons {
       display: flex;
-      gap: 12px;
+      gap: 10px;
     }
 
     .btn {
       border: none;
-      border-radius: 12px;
-      padding: 6px 14px;
-      font-size: 7vw;
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-size: 5.5vw;     /* buvo 7vw → mažesni */
       cursor: pointer;
       background: #222;
       color: #fff;
     }
 
     .btn-reset {
-      font-size: 4vw;
-      padding: 4px 14px;
-      opacity: 0.85;
+      font-size: 3vw;       /* buvo 4vw → mažesni */
+      padding: 3px 12px;
+      opacity: 0.8;
     }
   </style>
 </head>
@@ -99,12 +102,12 @@
     <div class="team">
       <div class="score" id="homeScore">0</div>
     </div>
+
     <div class="team">
       <div class="score" id="awayScore">0</div>
     </div>
   </div>
 
-  <!-- apatinė juosta: kairėj -/+ HOME, per vidurį RESET, dešinėj -/+ AWAY -->
   <div class="controls">
     <div class="team-buttons">
       <button class="btn" onclick="changeScore('home', -1)">−</button>
