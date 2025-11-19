@@ -5,7 +5,11 @@
   <title>Scoreboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <!-- kad iOS būtų labiau kaip app'as iš Home Screen -->
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#000000">
+
+  <!-- iOS full-screen support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Scoreboard">
@@ -19,6 +23,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .header {
@@ -26,13 +31,14 @@
       gap: 8px;
       padding: 2px 10px;
       background: #000;
+      z-index: 5;
     }
 
     .team-name-input {
       flex: 1;
       text-align: center;
       font-size: 2.3vw;
-      padding: 3px 3px;
+      padding: 3px;
       border-radius: 8px;
       border: 1px solid #444;
       background: #111;
@@ -43,13 +49,13 @@
       flex: 1;
       display: flex;
       align-items: flex-end;
-      margin-bottom: -2px;
+      justify-content: center;
+      margin-bottom: -4px;
     }
 
     .team {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       border-right: 2px solid #222;
@@ -58,32 +64,30 @@
       border-right: none;
     }
 
-    /* baziniai skaičių nustatymai – dydį perrašys JS */
     .score {
-      font-size: 52vw;
-      line-height: 1;
       margin: 0;
       padding: 0;
       font-weight: 900;
-      text-shadow: 0 0 12px rgba(255,255,255,0.6);
+      line-height: 1;
+      text-shadow: 0 0 18px rgba(255,255,255,0.6);
     }
 
     .score-home {
       color: #e6ff4f;
-      text-shadow: 0 0 18px rgba(230,255,79,0.9);
+      text-shadow: 0 0 20px rgba(230,255,79,0.9);
     }
     .score-away {
       color: #4fd5ff;
-      text-shadow: 0 0 18px rgba(79,213,255,0.9);
+      text-shadow: 0 0 20px rgba(79,213,255,0.9);
     }
 
     .controls {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 4px 16px 8px;
-      gap: 12px;
-      margin-top: -4px;
+      padding: 6px 18px 10px;
+      gap: 14px;
+      margin-top: -6px;
     }
 
     .team-buttons {
@@ -94,16 +98,16 @@
     .btn {
       border: none;
       border-radius: 8px;
-      padding: 4px 12px;
-      font-size: 5.2vw;
-      cursor: pointer;
+      padding: 4px 14px;
+      font-size: 5vw;
       background: #222;
-      color: #fff;
+      color: white;
+      cursor: pointer;
     }
 
     .btn-reset {
-      font-size: 3vw;
-      padding: 3px 12px;
+      font-size: 3.2vw;
+      padding: 4px 14px;
       opacity: 0.9;
     }
   </style>
@@ -118,7 +122,6 @@
     <div class="team">
       <div class="score score-home" id="homeScore">0</div>
     </div>
-
     <div class="team">
       <div class="score score-away" id="awayScore">0</div>
     </div>
@@ -139,115 +142,100 @@
   </div>
 
   <script>
-    // --------- SCORE / STATE ----------
+    // -------- LOAD SAVED STATE --------
     function loadState() {
       const homeScore = localStorage.getItem('homeScore');
       const awayScore = localStorage.getItem('awayScore');
       const homeName = localStorage.getItem('homeName');
       const awayName = localStorage.getItem('awayName');
 
-      if (homeScore !== null) document.getElementById('homeScore').textContent = homeScore;
-      if (awayScore !== null) document.getElementById('awayScore').textContent = awayScore;
-      if (homeName !== null) document.getElementById('homeName').value = homeName;
-      if (awayName !== null) document.getElementById('awayName').value = awayName;
+      if (homeScore !== null) homeScoreEl.textContent = homeScore;
+      if (awayScore !== null) awayScoreEl.textContent = awayScore;
+      if (homeName !== null) homeNameInput.value = homeName;
+      if (awayName !== null) awayNameInput.value = awayName;
     }
 
+    // -------- SCORE LOGIC --------
+    const homeScoreEl = document.getElementById("homeScore");
+    const awayScoreEl = document.getElementById("awayScore");
+    const homeNameInput = document.getElementById("homeName");
+    const awayNameInput = document.getElementById("awayName");
+
     function changeScore(team, delta) {
-      const id = team + 'Score';
-      const el = document.getElementById(id);
+      const el = team === 'home' ? homeScoreEl : awayScoreEl;
       let score = parseInt(el.textContent, 10);
-      score += delta;
-      if (score < 0) score = 0;
+      score = Math.max(0, score + delta);
       el.textContent = score;
-      localStorage.setItem(id, score);
+      localStorage.setItem(team + 'Score', score);
       updateFontSizes();
     }
 
     function resetScores() {
-      document.getElementById('homeScore').textContent = '0';
-      document.getElementById('awayScore').textContent = '0';
-      localStorage.setItem('homeScore', '0');
-      localStorage.setItem('awayScore', '0');
+      homeScoreEl.textContent = "0";
+      awayScoreEl.textContent = "0";
+      localStorage.setItem("homeScore", "0");
+      localStorage.setItem("awayScore", "0");
       updateFontSizes();
     }
 
-    // --------- AUTO FONT SIZE ----------
-    function adjustScoreElement(el) {
-      const text = el.textContent.trim();
-      const len = text.length;
+    homeNameInput.oninput = () =>
+      localStorage.setItem("homeName", homeNameInput.value);
+
+    awayNameInput.oninput = () =>
+      localStorage.setItem("awayName", awayNameInput.value);
+
+    // -------- AUTO FONT SIZE --------
+    function adjustScore(el) {
+      const len = el.textContent.length;
       let size;
 
-      if (len <= 1) {
-        size = '52vw';        // 0–9
-      } else if (len === 2) {
-        size = '36vw';        // 10–99 (padidinta nuo 32vw)
-      } else {
-        size = '26vw';        // 100+
-      }
+      if (len === 1) size = "52vw";     // MAX
+      else if (len === 2) size = "36vw"; // slightly bigger than before
+      else size = "26vw";               // 100+
 
       el.style.fontSize = size;
     }
 
     function updateFontSizes() {
-      adjustScoreElement(document.getElementById('homeScore'));
-      adjustScoreElement(document.getElementById('awayScore'));
+      adjustScore(homeScoreEl);
+      adjustScore(awayScoreEl);
     }
 
-    // --------- FULLSCREEN + WAKE LOCK (Android/Chrome) ----------
+    // -------- FULLSCREEN + WAKE LOCK (Android) --------
     let wakeLock = null;
-    let fullscreenInitialized = false;
+    let started = false;
 
     async function enableFullscreenAndWakeLock() {
-      if (fullscreenInitialized) return;
-      fullscreenInitialized = true;
+      if (started) return;
+      started = true;
 
       const el = document.documentElement;
 
       try {
-        if (el.requestFullscreen) {
-          await el.requestFullscreen();
-        } else if (el.webkitRequestFullscreen) { // iOS Safari
-          el.webkitRequestFullscreen();
-        }
-      } catch (e) {
-        console.log('Fullscreen error:', e);
-      }
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      } catch (e) {}
 
-      if ('wakeLock' in navigator) {
+      if ("wakeLock" in navigator) {
         try {
-          wakeLock = await navigator.wakeLock.request('screen');
-          wakeLock.addEventListener('release', () => {
-            console.log('Wake lock released');
-          });
-        } catch (err) {
-          console.log('Wake lock error:', err);
-        }
+          wakeLock = await navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", () =>
+            console.log("WakeLock released")
+          );
+        } catch (e) {}
       }
     }
 
-    function initInteractionOnce() {
-      enableFullscreenAndWakeLock();
-      window.removeEventListener('click', initInteractionOnce);
-      window.removeEventListener('touchstart', initInteractionOnce);
-    }
+    window.addEventListener("click", enableFullscreenAndWakeLock, { once: true });
+    window.addEventListener("touchstart", enableFullscreenAndWakeLock, { once: true });
 
-    window.addEventListener('click', initInteractionOnce);
-    window.addEventListener('touchstart', initInteractionOnce);
-
-    // --------- INIT ---------
-    window.addEventListener('load', function () {
+    // INIT
+    window.onload = () => {
       loadState();
       updateFontSizes();
+    };
 
-      document.getElementById('homeName').addEventListener('input', () =>
-        localStorage.setItem('homeName', document.getElementById('homeName').value)
-      );
-      document.getElementById('awayName').addEventListener('input', () =>
-        localStorage.setItem('awayName', document.getElementById('awayName').value)
-      );
-    });
-
-    window.addEventListener('resize', updateFontSizes);
+    window.onresize = updateFontSizes;
   </script>
 </body>
 </html>
