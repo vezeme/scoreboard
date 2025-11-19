@@ -37,7 +37,7 @@
       flex: 1;
       display: flex;
       align-items: flex-end;
-      margin-bottom: -2px; /* truputį nuleidžiam skaičius, bet ne per daug */
+      margin-bottom: -2px;
     }
 
     .team {
@@ -52,6 +52,7 @@
       border-right: none;
     }
 
+    /* bazinis dydis – bus perrašomas JS, bet paliekam default 52vw */
     .score {
       font-size: 52vw;
       line-height: 1;
@@ -74,7 +75,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      /* šiek tiek pakeliam nuo krašto ir paliekam mažą tarpą */
       padding: 4px 16px 8px;
       gap: 12px;
       margin-top: -4px;
@@ -88,7 +88,7 @@
     .btn {
       border: none;
       border-radius: 8px;
-      padding: 4px 12px;      /* kiek didesnis hit-area */
+      padding: 4px 12px;
       font-size: 5.2vw;
       cursor: pointer;
       background: #222;
@@ -147,11 +147,13 @@
 
     function changeScore(team, delta) {
       const id = team + 'Score';
-      let score = parseInt(document.getElementById(id).textContent, 10);
+      const el = document.getElementById(id);
+      let score = parseInt(el.textContent, 10);
       score += delta;
       if (score < 0) score = 0;
-      document.getElementById(id).textContent = score;
+      el.textContent = score;
       localStorage.setItem(id, score);
+      updateFontSizes();
     }
 
     function resetScores() {
@@ -159,9 +161,46 @@
       document.getElementById('awayScore').textContent = '0';
       localStorage.setItem('homeScore', '0');
       localStorage.setItem('awayScore', '0');
+      updateFontSizes();
     }
 
-    window.addEventListener('load', loadState);
+    // Automatinis šrifto dydžio parinkimas pagal skaitmenų skaičių
+    function adjustScoreElement(el) {
+      const text = el.textContent.trim();
+      const len = text.length;
+      let size;
+
+      if (len <= 1) {
+        size = '52vw';      // 0–9
+      } else if (len === 2) {
+        size = '32vw';      // 10–99
+      } else {
+        size = '24vw';      // 100+ (šiaip turbūt nepasieksi, bet šiaip sau)
+      }
+
+      el.style.fontSize = size;
+    }
+
+    function updateFontSizes() {
+      adjustScoreElement(document.getElementById('homeScore'));
+      adjustScoreElement(document.getElementById('awayScore'));
+    }
+
+    window.addEventListener('load', function () {
+      loadState();
+      updateFontSizes();
+
+      // išsaugom komandų pavadinimus
+      document.getElementById('homeName').addEventListener('input', () =>
+        localStorage.setItem('homeName', document.getElementById('homeName').value)
+      );
+      document.getElementById('awayName').addEventListener('input', () =>
+        localStorage.setItem('awayName', document.getElementById('awayName').value)
+      );
+    });
+
+    // jei pasuksi ekraną / keisis plotis – perpiešiam dydžius
+    window.addEventListener('resize', updateFontSizes);
   </script>
 </body>
 </html>
