@@ -21,9 +21,11 @@
       background: #000;
       color: #fff;
       height: 100vh;
+      height: 100dvh; /* naujesniuose naršyklėse – tikras matomas aukštis */
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-y: auto;   /* leidžiam truputį slinkti, jei nukerpa */
+      overflow-x: hidden;
     }
 
     .header {
@@ -37,7 +39,7 @@
     .team-name-input {
       flex: 1;
       text-align: center;
-      font-size: 2.3vw;
+      font-size: 2.2vw;
       padding: 3px;
       border-radius: 8px;
       border: 1px solid #444;
@@ -50,7 +52,7 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      margin-bottom: -4px;
+      margin-bottom: 0;
     }
 
     .team {
@@ -85,9 +87,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 18px 10px;
+      padding: 4px 16px 6px;
       gap: 14px;
-      margin-top: -6px;
+      margin-top: -4px;
     }
 
     .team-buttons {
@@ -98,16 +100,16 @@
     .btn {
       border: none;
       border-radius: 8px;
-      padding: 4px 14px;
-      font-size: 5vw;
+      padding: 4px 12px;
+      font-size: 4.8vw;
       background: #222;
       color: white;
       cursor: pointer;
     }
 
     .btn-reset {
-      font-size: 3.2vw;
-      padding: 4px 14px;
+      font-size: 3vw;
+      padding: 3px 12px;
       opacity: 0.9;
     }
   </style>
@@ -142,7 +144,13 @@
   </div>
 
   <script>
-    // -------- LOAD SAVED STATE --------
+    // -------- ELEMENTAI --------
+    const homeScoreEl = document.getElementById("homeScore");
+    const awayScoreEl = document.getElementById("awayScore");
+    const homeNameInput = document.getElementById("homeName");
+    const awayNameInput = document.getElementById("awayName");
+
+    // -------- BŪSENA / SCORE --------
     function loadState() {
       const homeScore = localStorage.getItem('homeScore');
       const awayScore = localStorage.getItem('awayScore');
@@ -154,12 +162,6 @@
       if (homeName !== null) homeNameInput.value = homeName;
       if (awayName !== null) awayNameInput.value = awayName;
     }
-
-    // -------- SCORE LOGIC --------
-    const homeScoreEl = document.getElementById("homeScore");
-    const awayScoreEl = document.getElementById("awayScore");
-    const homeNameInput = document.getElementById("homeName");
-    const awayNameInput = document.getElementById("awayName");
 
     function changeScore(team, delta) {
       const el = team === 'home' ? homeScoreEl : awayScoreEl;
@@ -184,14 +186,18 @@
     awayNameInput.oninput = () =>
       localStorage.setItem("awayName", awayNameInput.value);
 
-    // -------- AUTO FONT SIZE --------
+    // -------- AUTO ŠRIFTO DYDIS --------
     function adjustScore(el) {
       const len = el.textContent.length;
       let size;
 
-      if (len === 1) size = "52vw";     // MAX
-      else if (len === 2) size = "36vw"; // slightly bigger than before
-      else size = "26vw";               // 100+
+      if (len === 1) {
+        size = "48vw";     // šiek tiek mažiau, kad visada tilptų su mygtukais
+      } else if (len === 2) {
+        size = "34vw";     // 10–99
+      } else {
+        size = "24vw";     // 100+
+      }
 
       el.style.fontSize = size;
     }
@@ -212,8 +218,11 @@
       const el = document.documentElement;
 
       try {
-        if (el.requestFullscreen) await el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        if (el.requestFullscreen) {
+          await el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
       } catch (e) {}
 
       if ("wakeLock" in navigator) {
@@ -229,7 +238,7 @@
     window.addEventListener("click", enableFullscreenAndWakeLock, { once: true });
     window.addEventListener("touchstart", enableFullscreenAndWakeLock, { once: true });
 
-    // INIT
+    // -------- INIT --------
     window.onload = () => {
       loadState();
       updateFontSizes();
