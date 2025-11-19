@@ -15,26 +15,26 @@
       flex-direction: column;
     }
 
-    /* viršuje – komandos, bet mažesniu šriftu */
+    /* mažesni komandų pavadinimai viršuje */
     .header {
       display: flex;
       gap: 8px;
-      padding: 6px 10px;
+      padding: 4px 10px;
       background: #000;
     }
 
     .team-name-input {
       flex: 1;
       text-align: center;
-      font-size: 3vw;          /* buvo 5vw – sumažinau */
-      padding: 4px;
+      font-size: 2.8vw;
+      padding: 3px 4px;
       border-radius: 8px;
       border: 1px solid #444;
       background: #111;
       color: #fff;
     }
 
-    /* pagrindinė zona – du dideli skaičiai */
+    /* du gigantiški skaičiai */
     .scores {
       flex: 1;
       display: flex;
@@ -53,33 +53,39 @@
     }
 
     .score {
-      font-size: 40vw;      /* padidinta – skaičiai beveik visą stulpelį */
+      font-size: 45vw;   /* dar didesni skaičiai */
       line-height: 1;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
-    /* eilutė su -  reset  +  */
-    .buttons-row {
+    /* bendras blokas su mygtukais apačioje */
+    .controls {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 4px 12px 14px;
+      gap: 10px;
+    }
+
+    .team-buttons {
+      display: flex;
+      gap: 12px;
     }
 
     .btn {
       border: none;
       border-radius: 12px;
       padding: 6px 14px;
-      font-size: 7vw;      /* +- mygtukai mažesni nei skaičiai */
+      font-size: 7vw;
       cursor: pointer;
       background: #222;
       color: #fff;
     }
 
     .btn-reset {
-      font-size: 4vw;      /* reset dar mažesnis */
-      padding: 4px 10px;
-      opacity: 0.8;
+      font-size: 4vw;
+      padding: 4px 14px;
+      opacity: 0.85;
     }
   </style>
 </head>
@@ -90,24 +96,26 @@
   </div>
 
   <div class="scores">
-    <!-- HOME -->
     <div class="team">
       <div class="score" id="homeScore">0</div>
-      <div class="buttons-row">
-        <button class="btn" onclick="changeScore('home', -1)">−</button>
-        <button class="btn btn-reset" onclick="resetScores()">RESET</button>
-        <button class="btn" onclick="changeScore('home', 1)">+</button>
-      </div>
     </div>
-
-    <!-- AWAY -->
     <div class="team">
       <div class="score" id="awayScore">0</div>
-      <div class="buttons-row">
-        <button class="btn" onclick="changeScore('away', -1)">−</button>
-        <button class="btn btn-reset" onclick="resetScores()">RESET</button>
-        <button class="btn" onclick="changeScore('away', 1)">+</button>
-      </div>
+    </div>
+  </div>
+
+  <!-- apatinė juosta: kairėj -/+ HOME, per vidurį RESET, dešinėj -/+ AWAY -->
+  <div class="controls">
+    <div class="team-buttons">
+      <button class="btn" onclick="changeScore('home', -1)">−</button>
+      <button class="btn" onclick="changeScore('home', 1)">+</button>
+    </div>
+
+    <button class="btn btn-reset" onclick="resetScores()">RESET</button>
+
+    <div class="team-buttons">
+      <button class="btn" onclick="changeScore('away', -1)">−</button>
+      <button class="btn" onclick="changeScore('away', 1)">+</button>
     </div>
   </div>
 
